@@ -65,8 +65,8 @@ describe('movingAverage.js', function () {
 
   describe('averageReturnsForInstallment', function () {
     it('finds average and return object', function () {
-      let returns = MovingAverage.create([]).averageReturnsForInstallment('June', [1,2,3,4]);
-      assert.equal(returns['June'], 2.5);
+      let returns = MovingAverage.create([]).averageReturnsForInstallment([1,2,3,4]);
+      assert.equal(returns, 2.5);
     });
   });
 
@@ -114,21 +114,26 @@ describe('movingAverage.js', function () {
     it('should compute returns for one month poi & horizon', function () {
       const calc = MovingAverage.create(NavDatas[1]);
       const returns = calc.computeReturns(12, 12);
-      assert.equal(300, returns[0]['Jul-19']);
+      assert.equal(returns[0], 150);
+      assert.equal('Jul-20', calc.getMonths()[0]);
     });
 
     it('should compute zero returns if data is not there', function () {
       const calc = MovingAverage.create(NavDatas[1]);
       const returns = calc.computeReturns(12, 13);
-      assert.equal(0, returns[0]['Jun-19']);
-      assert.equal(300, returns[1]['Jul-19']);
+      assert.equal(returns[0], 0 );
+      assert.equal(returns[1], 150);
+      assert.equal('Jun-20', calc.getMonths()[0]);
+      assert.equal('Jul-20', calc.getMonths()[1]);
     });
 
     it('should compute returns over poi & horizon', function() {
       const calc = MovingAverage.create(NavDatas[0]);
       const returns = calc.computeReturns(1, 2);
-      assert.equal(148.86, returns[0]['May-20']);
-      assert.equal(164.5, returns[1]['Jun-20']);
+      assert.equal(returns[0], 219458.63);
+      assert.equal(returns[1], 36074.03);
+      assert.equal('Jun-20', calc.getMonths()[0]);
+      assert.equal('Jul-20', calc.getMonths()[1]);
     });
   });
 });

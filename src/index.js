@@ -1,21 +1,45 @@
-var add = require('date-fns/add');
-var format = require('date-fns/format');
 const axios = require('axios');
-let navs =[];
+const MovingAverage = require('./util/movingAverage.js')
+const Report = require('./util/report.js')
 
-axios.get('https://api.mfapi.in/mf/100356')
-  .then(response => {
-    console.log(response.data.meta.fund_house);
-    navs = response.data.data;
-    console.log(navs.length);
-  })
-  .catch(error => {
-    console.log(error);
-  });
+async function fetch(mfCode) {
+  try {
+    let response = await axios.get(`https://api.mfapi.in/mf/${mfCode}`)
+    return {meta: response.data.meta, navs: response.data.data};
+  }
+  catch(error) {
+      console.log(error);
+  };
+}
+
+function compute(data) {
+  const calc = MovingAverage.create(data);
+  return calc.computeReturns(36, 108);
+}
 
 
-const startDate = new Date(2003, 03, 01);
-const endDate = new Date(2018, 02, 31);
+async function runAll() {
+  let schemeNavs = [];
+  const period = 60;
+  const horizon = 120;
+  schemeNavs.push(await fetch(100356));//icici equity&debt
+  // schemeNavs.push(await fetch(102885));//sbi equity hybrid
 
-console.log(add(startDate, {years: 15}));
-console.log(format(endDate, 'dd-MM-yyyy'));
+
+  //schemeNavs.push(await fetch(109740));//icici bond
+  schemeNavs.push(await fetch(122639));//ppfas
+  // schemeNavs.push(await fetch(102885));//sbi equity hybrid
+
+  let calc = MovingAverage.create(schemeNavs[0].navs);
+  let returns1 =  calc.computeReturns(period, horizon);
+  calc = MovingAverage.create(schemeNavs[1].navs);
+  let returns2 =  calc.computeReturns(period, horizon);
+  let months = calc.getMonths();
+
+  let schemes = [];
+  schemeNavs.forEach((scheme) => schemes.push(scheme.meta.scheme_name));
+
+  new Report().displayResults(schemes, months, returns1, returns2);
+}
+
+runAll();
