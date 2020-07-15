@@ -37,7 +37,7 @@ module.exports = class MovingAverage {
         }
         this.months.push(month);
         returns.push(this.averageReturnsForInstallment(monthReturns));
-        // console.log(returns);
+        console.log('Completed calcs...');
         return returns;
     }
 
