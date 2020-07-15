@@ -3,54 +3,73 @@ const chalk = require('chalk')
 
 module.exports = class Report {
     constructor() {
-
+        this.colLength = 60;
     }
 
     displayResults(schemes, months, ...returns) {
         process.stdout.write(chalk.yellowBright(Array(10).join('-')));
         schemes.forEach((_) => {
-            process.stdout.write(chalk.yellowBright(Array(70).join('-')));
+            process.stdout.write(chalk.yellowBright(Array(this.colLength).join('-')));
         });
         process.stdout.write('\n');
 
         process.stdout.write(chalk.greenBright('Period    '));
         schemes.forEach(function(scheme) {
-            if ( scheme.length > 70 )
-                scheme = scheme.substring(0, 70);
-            let pad = 70 - scheme.length;
-            let lpad = 0;
-            let rpad = 0;
-            if ( pad > 2 ) {
-                lpad = Math.round(pad / 2);
-                rpad = lpad;
-            }
-            else if ( pad == 2 ) {
-                lpad = 1;
-                rpad = 1;
-            }
-            process.stdout.write(`${Array(lpad).join(' ')}${chalk.greenBright(scheme)}${Array(rpad).join(' ')}`);
-        });
+            process.stdout.write(this.paddedText(scheme, this.colLength, chalk.greenBright));
+        }, this);
         process.stdout.write('\n');
 
         process.stdout.write(chalk.yellowBright(Array(10).join('-')));
         schemes.forEach((_) => {
-            process.stdout.write(chalk.yellowBright(Array(70).join('-')));
+            process.stdout.write(chalk.yellowBright(Array(this.colLength).join('-')));
+        });
+        process.stdout.write('\n');
+
+        process.stdout.write(chalk.yellowBright(Array(10).join(' ')));
+        schemes.forEach((_) => {
+            process.stdout.write(this.paddedText('Rolling', 30, chalk.redBright));
+            process.stdout.write(this.paddedText('Trailing', 30, chalk.redBright));
+        });
+        process.stdout.write('\n');
+
+        process.stdout.write(chalk.yellowBright(Array(10).join(' ')));
+        schemes.forEach((_) => {
+            process.stdout.write(chalk.yellowBright(Array(this.colLength).join('-')));
         });
         process.stdout.write('\n');
 
         months.forEach((m, index) => {
             process.stdout.write(`${chalk.yellowBright(m)}    `);
-            process.stdout.write(Array(32).join(' ') + chalk.yellowBright(this.pad(returns[0][index])) + Array(32).join(' '));
-            process.stdout.write(Array(32).join(' ') + chalk.yellowBright(this.pad(returns[1][index])) + Array(32).join(' '));
+            // process.stdout.write(Array(this.numPad).join(' ') + chalk.yellowBright(this.pad(returns[0]['rolling'][index])) + Array(this.numPad).join(' '));
+            // process.stdout.write(Array(this.numPad).join(' ') + chalk.yellowBright(this.pad(returns[1]['rolling'][index])) + Array(this.numPad).join(' '));
+            schemes.forEach((_, scheme) => {
+                process.stdout.write(this.paddedText(this.formatNumber(returns[scheme]['rolling'][index]), 30, chalk.yellowBright));
+                process.stdout.write(this.paddedText(this.formatNumber(returns[scheme]['trailing'][index]), 30, chalk.yellowBright));
+            });
             process.stdout.write('\n');
         }, this);
     }
 
-    pad(number, length=6) {
+    formatNumber(number, length=6) {
         let num = number.toFixed(2);
         while (num.length < length) {
             num = ' ' + num;
         }
         return num;
+    }
+
+    paddedText(text, colLength, chalkFn) {
+        if ( text.length > colLength )
+            text = text.substring(0, colLength);
+        let pad = colLength - text.length;
+        if ( pad > 2 )
+            pad = Math.round(pad / 2);
+        else if ( pad == 2 )
+            pad = 1;
+
+        if ( chalkFn )
+            text = chalkFn.call(this, text);
+
+        return `${Array(pad).join(' ')}${text}${Array(pad).join(' ')}`;
     }
 }

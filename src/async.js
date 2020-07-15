@@ -61,4 +61,41 @@ async function parallel() {
 //sequentialStart();
 //concurrentStart();
 //concurrentPromise();
-parallel();
+//parallel();
+
+function makeRequest() {
+    return new Promise((resolve) => {
+        for ( var i=0; i<100000; i++ ) {
+
+        }
+        return [1,2,3];
+    });
+}
+
+async function process(arrayOfPromises) {
+    console.log(`process`);
+    let responses = await Promise.all(arrayOfPromises);
+    for(let r of responses) {
+        console.log(r);
+    }
+    console.log(`process`);
+    return responses;
+}
+async function handler() {
+    let arrayOfPromises = [
+        makeRequest(),
+        makeRequest(),
+        makeRequest(),
+        makeRequest(),
+        makeRequest(),
+    ];
+    let responses = process(arrayOfPromises);
+    console.log(`processing is complete`);
+    return responses;
+}
+
+async function run() {
+    let resp = await handler();
+    console.log('gone '+resp);
+}
+run();

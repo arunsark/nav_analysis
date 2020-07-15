@@ -16,29 +16,36 @@ module.exports = class MovingAverage {
     }
 
     computeReturns(periodOfInvestment, horizon) {
-        let returns = [];
+        let rollingReturns = [];
+        let trailingReturns = [];
         let monthReturns = [];
         let installmentDate = this.findStartDateOfInvestment(horizon);
+        this.trailingInvestmentDate = installmentDate;
 
         let lastInstallmentDate = addMonths(installmentDate, (horizon-periodOfInvestment));
         let month = this.extractMonthFromDate(installmentDate, periodOfInvestment);
 
         while ( isBefore(installmentDate, lastInstallmentDate) || isEqual(installmentDate, lastInstallmentDate) ) {
             let returnForAnInvestment = this.computeReturnsForAnInvestment(installmentDate, periodOfInvestment);
-            if ( returnForAnInvestment !== null )
+            if ( returnForAnInvestment !== null ) {
                 monthReturns.push(returnForAnInvestment);
+            }
+            if ( this.isDateTrailingInvestment(installmentDate) ) {
+                trailingReturns.push(returnForAnInvestment == null ?
+                     0 : Math.round(returnForAnInvestment * 100)/100);
+            }
             installmentDate = addDays(installmentDate, 1);
             if ( month !== this.extractMonthFromDate(installmentDate, periodOfInvestment) ) {
                 this.months.push(month);
-                returns.push(this.averageReturnsForInstallment(monthReturns));
+                rollingReturns.push(this.averageReturnsForInstallment(monthReturns));
                 month = this.extractMonthFromDate(installmentDate, periodOfInvestment);
                 monthReturns = [];
             }
         }
         this.months.push(month);
-        returns.push(this.averageReturnsForInstallment(monthReturns));
+        rollingReturns.push(this.averageReturnsForInstallment(monthReturns));
         console.log('Completed calcs...');
-        return returns;
+        return { rolling: rollingReturns, trailing: trailingReturns };
     }
 
     getMonths() {
@@ -71,5 +78,9 @@ module.exports = class MovingAverage {
     findStartDateOfInvestment(horizon) {
         const latestNavDate = this.history.getLatestDate();
         return addMonths(latestNavDate, -1 * horizon);
+    }
+
+    isDateTrailingInvestment(date) {
+        return date.getDate() == this.trailingInvestmentDate.getDate();
     }
 }
