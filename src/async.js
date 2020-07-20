@@ -61,7 +61,7 @@ async function parallel() {
 //sequentialStart();
 //concurrentStart();
 //concurrentPromise();
-//parallel();
+parallel();
 
 function makeRequest() {
     return new Promise((resolve) => {
@@ -98,4 +98,4 @@ async function run() {
     let resp = await handler();
     console.log('gone '+resp);
 }
-run();
+//run();

@@ -15,15 +15,15 @@ async function fetch(mfCode) {
 
 async function runAll() {
   let schemeNavs = [];
-  const period = 12;//60;
-  const horizon = 24;//120;
+  const period = 60;
+  const horizon = 120;
   //schemeNavs.push(await fetch(100356));//icici equity&debt
   // schemeNavs.push(await fetch(102885));//sbi equity hybrid
   //schemeNavs.push(await fetch(122639));//ppfas
 
   console.log('Fetching NAVs....');
   const scheme1 = fetch(102885);//109740);
-  const scheme2 = fetch(122639);//100639);
+  const scheme2 = fetch(118464);//100639);
 
   console.log('Awaiting results...');
   schemeNavs.push(await scheme1);//icici bond

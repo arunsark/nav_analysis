@@ -1,6 +1,5 @@
 const assert = require('chai').assert;
 const HistoricalData = require('../src/util/historicalData.js')
-var subDays = require('date-fns/subDays');
 
 describe('historicalData.js', function () {
   describe('getNav', function () {
